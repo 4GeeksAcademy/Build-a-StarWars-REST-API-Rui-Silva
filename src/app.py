@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, People, Planets, Users #, Favorites
 #from models import Person
 
 app = Flask(__name__)
@@ -44,6 +44,66 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+@app.route('/people', methods=['GET'])
+def get_all_people():
+
+    all_people = People.query.all()
+    all_people = list(map(lambda x: x.serialize(), all_people))
+
+    print('GET Request: All the Users ====>', all_people)
+
+    return jsonify(all_people), 200
+
+@app.route('/planets', methods=['GET'])
+def get_all_planets():
+
+    all_planets = Planets.query.all()
+    all_planets = list(map(lambda x: x.serialize(), all_planets))
+
+    print('GET Request: All the Users ====>', all_planets)
+
+    return jsonify(all_planets), 200
+
+@app.route('/people/<int:people_id>', methods=['GET'])
+def get_single_person(people_id):
+
+    people = People.query.get(people_id)
+    people = people.serialize()
+
+    print('GET Request: All the people ====>', people)
+
+    return jsonify(people), 200
+
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_single_planet(planet_id):
+
+    planet = Planets.query.get(planet_id)
+    planet = planet.serialize()
+
+    print('GET Request: All the planets ====>', planet)
+
+    return jsonify(planet), 200
+
+@app.route('/users', methods=['GET'])
+def get_all_users():
+
+    all_users = Users.query.all()
+    all_users = list(map(lambda x: x.serialize(), all_users))
+
+    print('GET Request: All the Users ====>', all_users)
+
+    return jsonify(all_users), 200
+
+# @app.route('/users/favorites', methods=['GET'])
+# def get_favorites():
+
+#     favorites = Favorites.query.all()
+#     favorites = favorites.serialize()
+#     print(favorites)
+#     print('GET Request: Favorites ====>', favorites)
+
+#     return jsonify(favorites), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
