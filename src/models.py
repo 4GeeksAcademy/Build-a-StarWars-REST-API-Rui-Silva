@@ -64,21 +64,22 @@ class Users(db.Model):
             # do not serialize the password, its a security breach
         }
     
-# class Favorites(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     people_id = db.Column(db.Integral, ForeignKey('people.id'))
-#     people = relationship("People")
-#     planets_id = db.Column(db.Integral, ForeignKey('planets.id'))
-#     planets = relationship("Planets")
-#     users_id = db.Column(db.Integral, ForeignKey('users.id'))
-#     users = relationship("Users")
+class Favorites(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    people_id = db.Column(db.Integer, ForeignKey('people.id'))
+    people = relationship("People")
+    planets_id = db.Column(db.Integer, ForeignKey('planets.id'))
+    planets = relationship("Planets")
+    users_id = db.Column(db.Integer, ForeignKey('users.id'))
+    users = relationship("Users")
 
-#     def __repr__(self):
-#         return '<Favorites %r>' % self.name
+    def __repr__(self):
+        return '<Favorites %r>' % self.id
 
-#     def serialize(self):
-#         return {
-#             "id": self.id,
-#             "people": self.people,
-#             "planets": self.planets
-#         }
+    def serialize(self):
+        return {
+            "id": self.id,
+            "users": self.users.serialize(),
+            "people": self.people.serialize(),
+            "planets": self.planets.serialize()
+        }

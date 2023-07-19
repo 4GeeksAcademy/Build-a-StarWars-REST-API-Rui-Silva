@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets, Users #, Favorites
+from models import db, User, People, Planets, Users, Favorites
 #from models import Person
 
 app = Flask(__name__)
@@ -95,15 +95,70 @@ def get_all_users():
 
     return jsonify(all_users), 200
 
-# @app.route('/users/favorites', methods=['GET'])
-# def get_favorites():
+@app.route('/users/favorites', methods=['GET'])
+def get_favorites():
 
-#     favorites = Favorites.query.all()
-#     favorites = favorites.serialize()
-#     print(favorites)
-#     print('GET Request: Favorites ====>', favorites)
+    favorites = Favorites.query.all()
 
-#     return jsonify(favorites), 200
+    # favorites_serializade = list(map(lambda fav: fav.serialize(), favorites)) # return jsonify(favorites_serializade), 200 #another way
+
+    response = []
+
+    for fav in favorites:
+        response.append(fav.serialize())
+
+    return jsonify(response), 200
+
+@app.route('/users/favorites', methods=['POST'])
+def add_new_favorite():
+
+    data = request.get_json()
+
+    add_favorite = Favorites(
+        people_id = data.get("people_id"),
+        planets_id = data.get("planets_id"),
+        users_id = data.get("users_id")
+    )
+    db.session.add(add_favorite)
+    db.session.commit()
+    
+    return jsonify(add_favorite.serialize()), 200
+
+@app.route('/users/favorites/<int:id>', methods=['PUT'])
+def update_favorite(id):
+
+    favorite = Favorites.query.get(id)
+
+    if not favorite:
+        return jsonify({"message": "favorite not found"}), 404
+    
+    data = request.get_json()
+
+    if "people_id" in data:
+        favorite.people_id = data.get("people_id")
+
+    if "planets_id" in data:
+        favorite.planets_id = data.get("planets_id")
+
+    if "users_id" in data:
+        favorite.users_id = data.get("users_id")
+ 
+    db.session.commit()
+    
+    return jsonify(favorite.serialize()), 200
+
+@app.route('/users/favorites/<int:id>', methods=['DELETE'])
+def delete_favorite(id):
+
+    favorite = Favorites.query.get(id)
+
+    if not favorite:
+        return jsonify({"message": "favorite not found"}), 404
+    
+    db.session.delete(favorite)
+    db.session.commit()
+   
+    return jsonify({"message": "favorite deleted"}), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
